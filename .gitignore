@@ -92,3 +92,16 @@ pids
 *.pid
 *.seed
 *.pid.lock
+
+/backend/__pycache__/*.pyc
+
+/backend/__pycache__/*
+/__pycache__/
+/backend/__pycache__/main.cpython-312.pyc
+
+
+__pycache__/
+*.pyc
+*.pyo
+
+backend/__pycache__/main.cpython-312.pyc

@@ -1,9 +1,11 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Camera, Pause, Play, StopCircle } from "lucide-react";
+import { Pause, Play, StopCircle, Upload } from "lucide-react";
 
+interface RoadVideoViewProps {
+  onFrame?: (analysis: AnalysisResult) => void;
+}
 
-// Add this interface above the component
 interface AnalysisResult {
   timestamp: string;
   driver_state: string | null;
@@ -12,25 +14,29 @@ interface AnalysisResult {
   frame_ids: Record<string, string>;
 }
 
-interface WebcamViewProps {
-  onFrame?: (analysis: AnalysisResult) => void;
-  cameraType?: 'driver' | 'road';
-}
-
-export const WebcamView: React.FC<WebcamViewProps> = ({ 
-  onFrame, 
-  cameraType = 'driver' 
-}) => {
+export const RoadVideoView: React.FC<RoadVideoViewProps> = ({ onFrame }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [error, setError] = useState<string>("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string>("");
 
-  // Add frame capture functionality
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setVideoUrl(url);
+      if (videoRef.current) {
+        videoRef.current.src = url;
+        videoRef.current.load();
+      }
+    }
+  };
+
   const captureFrame = async () => {
-    if (videoRef.current && onFrame && isPlaying && !isAnalyzing) {
-      setIsAnalyzing(true);  // Set analyzing state
+    if (videoRef.current && onFrame && isPlaying && !isAnalyzing && videoUrl) {
+      setIsAnalyzing(true);
       
       try {
         const canvas = document.createElement('canvas');
@@ -49,7 +55,7 @@ export const WebcamView: React.FC<WebcamViewProps> = ({
             },
             body: JSON.stringify({
               frame_data: base64Image,
-              camera_type: cameraType,
+              camera_type: 'road',
               timestamp: new Date().toISOString()
             })
           });
@@ -65,18 +71,17 @@ export const WebcamView: React.FC<WebcamViewProps> = ({
         console.error('Error sending frame to backend:', err);
         setError('Failed to analyze frame. Will retry.');
       } finally {
-        setIsAnalyzing(false);  // Immediately allow next capture
+        setIsAnalyzing(false);
       }
     }
   };
 
-  // Add interval for frame capture
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
     
-    if (isPlaying && onFrame) {
-      console.log("Setting up frame capture interval");
-      intervalId = setInterval(captureFrame, 3000); // Every 3 seconds
+    if (isPlaying && onFrame && videoUrl) {
+      console.log("Setting up frame capture interval for road video");
+      intervalId = setInterval(captureFrame, 3000);
     }
 
     return () => {
@@ -84,57 +89,36 @@ export const WebcamView: React.FC<WebcamViewProps> = ({
         clearInterval(intervalId);
       }
     };
-  }, [isPlaying, onFrame]);
-
-  const startWebcam = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
-      });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        streamRef.current = stream;
-        setIsPlaying(true);
-        setError("");
-        console.log("Webcam started successfully");
-      }
-    } catch (err) {
-      setError("Unable to access webcam. Please ensure you have granted permission.");
-      console.error("Error accessing webcam:", err);
-    }
-  };
-
-  const stopWebcam = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-      if (videoRef.current) {
-        videoRef.current.srcObject = null;
-      }
-      setIsPlaying(false);
-      console.log("Webcam stopped");
-    }
-  };
+  }, [isPlaying, onFrame, videoUrl]);
 
   const togglePlayPause = () => {
     if (videoRef.current) {
       if (videoRef.current.paused) {
         videoRef.current.play();
         setIsPlaying(true);
-        console.log("Video playback resumed");
       } else {
         videoRef.current.pause();
         setIsPlaying(false);
-        console.log("Video playback paused");
       }
     }
   };
 
+  const stopVideo = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+      setIsPlaying(false);
+    }
+  };
+
   useEffect(() => {
+    // Clean up object URL on unmount
     return () => {
-      stopWebcam();
+      if (videoUrl) {
+        URL.revokeObjectURL(videoUrl);
+      }
     };
-  }, []);
+  }, [videoUrl]);
 
   return (
     <div className="relative w-full max-w-2xl mx-auto">
@@ -146,21 +130,30 @@ export const WebcamView: React.FC<WebcamViewProps> = ({
         ) : null}
         <video
           ref={videoRef}
-          autoPlay
           playsInline
+          loop
           className="w-full h-full object-cover"
         />
       </div>
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2">
-        {!streamRef.current ? (
-          <Button
-            onClick={startWebcam}
-            variant="secondary"
-            className="bg-white/90 hover:bg-white/100 backdrop-blur-sm transition-all duration-200"
-          >
-            <Camera className="w-4 h-4 mr-2" />
-            Start Camera
-          </Button>
+        {!videoUrl ? (
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="video/*"
+              className="hidden"
+              onChange={handleFileUpload}
+            />
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              variant="secondary"
+              className="bg-white/90 hover:bg-white/100 backdrop-blur-sm transition-all duration-200"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Upload Road Video
+            </Button>
+          </>
         ) : (
           <>
             <Button
@@ -176,7 +169,7 @@ export const WebcamView: React.FC<WebcamViewProps> = ({
               )}
             </Button>
             <Button
-              onClick={stopWebcam}
+              onClick={stopVideo}
               variant="secondary"
               className="bg-white/90 hover:bg-white/100 backdrop-blur-sm transition-all duration-200"
               size="icon"
