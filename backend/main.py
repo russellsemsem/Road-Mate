@@ -8,10 +8,18 @@ from collections import deque
 import json
 import os
 from enum import Enum
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
+
+origins = [
+    "http://10.76.69.181:8080/",
+    "http://localhost",
+    "http://localhost:8080",
+]
+
 
 # Configuration from environment
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
@@ -146,6 +154,15 @@ class ContextGenerator:
 
 # Initialize FastAPI app
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Initialize context generator
 context_generator = ContextGenerator(

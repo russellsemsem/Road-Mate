@@ -2,11 +2,25 @@ import React, { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Camera, Pause, Play, StopCircle } from "lucide-react";
 
-interface WebcamViewProps {
-  onFrame?: (imageData: ImageData) => void;
+
+// Add this interface above the component
+interface AnalysisResult {
+  timestamp: string;
+  driver_state: string | null;
+  road_conditions: string | null;
+  combined_context: string;
+  frame_ids: Record<string, string>;
 }
 
-export const WebcamView: React.FC<WebcamViewProps> = ({ onFrame }) => {
+interface WebcamViewProps {
+  onFrame?: (analysis: AnalysisResult) => void;
+  cameraType?: 'driver' | 'road';
+}
+
+export const WebcamView: React.FC<WebcamViewProps> = ({ 
+  onFrame, 
+  cameraType = 'driver' 
+}) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -14,7 +28,7 @@ export const WebcamView: React.FC<WebcamViewProps> = ({ onFrame }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // Add frame capture functionality
-  const captureFrame = () => {
+  const captureFrame = async () => {
     if (videoRef.current && onFrame && isPlaying && !isAnalyzing) {
       console.log("Capturing frame...");
       setIsAnalyzing(true);
@@ -26,14 +40,33 @@ export const WebcamView: React.FC<WebcamViewProps> = ({ onFrame }) => {
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.drawImage(videoRef.current, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        console.log("Frame captured, dimensions:", {
-          width: imageData.width,
-          height: imageData.height
-        });
+        const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
         
-        onFrame(imageData);
-        setTimeout(() => setIsAnalyzing(false), 2000); // Prevent too frequent captures
+        try {
+          const response = await fetch('http://localhost:8000/frames/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              frame_data: base64Image,
+              camera_type: cameraType,
+              timestamp: new Date().toISOString()
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to analyze frame');
+          }
+
+          const analysis = await response.json();
+          onFrame(analysis);
+        } catch (err) {
+          console.error('Error sending frame to backend:', err);
+          setError('Failed to analyze frame. Will retry.');
+        } finally {
+          setTimeout(() => setIsAnalyzing(false), 2000); // Prevent too frequent captures
+        }
       }
     }
   };
