@@ -21,13 +21,11 @@ const Index = () => {
     activity: undefined,
   });
 
+  const [currentAnalysis, setCurrentAnalysis] = useState<AnalysisResult | undefined>(undefined);
+
   const handleAnalysis = (analysisResult: AnalysisResult) => {
     setIsAnalyzing(false);
-    setAnalysis({
-      description: analysisResult.driver_state,
-      objects: [], 
-      activity: analysisResult.combined_context,
-    });
+    setCurrentAnalysis(analysisResult);
   };
 
   return (
@@ -57,7 +55,10 @@ const Index = () => {
           </div>
           
           {/* Second column: Analysis */}
-          <AnalysisPanel loading={isAnalyzing} analysis={analysis} />
+          <AnalysisPanel 
+            loading={isAnalyzing} 
+            currentAnalysis={currentAnalysis}
+          />
         </div>
       </div>
     </div>

@@ -67,6 +67,7 @@ export const RoadVideoView: React.FC<RoadVideoViewProps> = ({ onFrame }) => {
           const analysis = await response.json();
           onFrame(analysis);
         }
+        setError("");
       } catch (err) {
         console.error('Error sending frame to backend:', err);
         setError('Failed to analyze frame. Will retry.');
