@@ -1,7 +1,16 @@
 import React, { useState } from "react";
 import { WebcamView } from "@/components/WebcamView";
+import { RoadVideoView } from "@/components/RoadVideoView";
 import { AnalysisPanel } from "@/components/AnalysisPanel";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+interface AnalysisResult {
+  timestamp: string;
+  driver_state: string | null;
+  road_conditions: string | null;
+  combined_context: string;
+  frame_ids: Record<string, string>;
+}
 
 const Index = () => {
   const [selectedProvider, setSelectedProvider] = useState<string>("gemini");
@@ -12,19 +21,11 @@ const Index = () => {
     activity: undefined,
   });
 
-  interface AnalysisResult {
-    timestamp: string;
-    driver_state: string | null;
-    road_conditions: string | null;
-    combined_context: string;
-    frame_ids: Record<string, string>;
-  }
-
   const handleAnalysis = (analysisResult: AnalysisResult) => {
     setIsAnalyzing(false);
     setAnalysis({
       description: analysisResult.driver_state,
-      objects: [],  // We could parse road conditions here if needed
+      objects: [], 
       activity: analysisResult.combined_context,
     });
   };
@@ -49,10 +50,13 @@ const Index = () => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6">
-          <WebcamView 
-            onFrame={handleAnalysis}
-            cameraType="driver"
-          />
+          {/* First column: Video streams */}
+          <div className="space-y-6">
+            <WebcamView onFrame={handleAnalysis} />
+            <RoadVideoView onFrame={handleAnalysis} />
+          </div>
+          
+          {/* Second column: Analysis */}
           <AnalysisPanel loading={isAnalyzing} analysis={analysis} />
         </div>
       </div>
