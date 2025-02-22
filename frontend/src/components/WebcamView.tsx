@@ -30,19 +30,18 @@ export const WebcamView: React.FC<WebcamViewProps> = ({
   // Add frame capture functionality
   const captureFrame = async () => {
     if (videoRef.current && onFrame && isPlaying && !isAnalyzing) {
-      console.log("Capturing frame...");
-      setIsAnalyzing(true);
+      setIsAnalyzing(true);  // Set analyzing state
       
-      const canvas = document.createElement('canvas');
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(videoRef.current, 0, 0);
-        const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = videoRef.current.videoWidth;
+        canvas.height = videoRef.current.videoHeight;
         
-        try {
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(videoRef.current, 0, 0);
+          const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
+          
           const response = await fetch('http://localhost:8000/frames/', {
             method: 'POST',
             headers: {
@@ -61,12 +60,12 @@ export const WebcamView: React.FC<WebcamViewProps> = ({
 
           const analysis = await response.json();
           onFrame(analysis);
-        } catch (err) {
-          console.error('Error sending frame to backend:', err);
-          setError('Failed to analyze frame. Will retry.');
-        } finally {
-          setTimeout(() => setIsAnalyzing(false), 2000); // Prevent too frequent captures
         }
+      } catch (err) {
+        console.error('Error sending frame to backend:', err);
+        setError('Failed to analyze frame. Will retry.');
+      } finally {
+        setIsAnalyzing(false);  // Immediately allow next capture
       }
     }
   };
@@ -77,7 +76,7 @@ export const WebcamView: React.FC<WebcamViewProps> = ({
     
     if (isPlaying && onFrame) {
       console.log("Setting up frame capture interval");
-      intervalId = setInterval(captureFrame, 3000); // Capture every 3 seconds
+      intervalId = setInterval(captureFrame, 3000); // Every 3 seconds
     }
 
     return () => {
