@@ -58,6 +58,28 @@ uvicorn main:app --reload
 
 The backend API will be available at `http://localhost:8000`
 
+### Mobile Setup
+
+1. Navigate to the mobile directory:
+```bash
+cd mobile
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Create a `.env` file in the mobile directory with your API keys:
+```env
+EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=your_key_here
+```
+
+4. Start the development server:
+```bash
+npx expo start
+```
+
 ## Environment Setup
 
 ### Required Environment Variables
@@ -72,6 +94,11 @@ Backend (.env):
 OPENAI_API_KEY=your_key_here
 ```
 
+Mobile (.env):
+```env
+EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=your_key_here
+```
+
 ## Development
 
 ### Frontend Development
@@ -84,6 +111,12 @@ OPENAI_API_KEY=your_key_here
 - FastAPI framework
 - Async support for real-time processing
 - OpenAI Vision API integration
+
+### Mobile Development
+- Built with React Native and Expo
+- Uses Clerk for authentication
+- File-based routing with expo-router
+- Secure token storage with expo-secure-store
 
 ## Troubleshooting
 
