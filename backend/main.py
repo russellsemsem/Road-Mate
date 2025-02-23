@@ -22,6 +22,7 @@ posthog = Posthog(os.getenv("POSTHOG_PROJECT_API_KEY"), host='https://us.i.posth
 
 
 origins = [
+    "*",
     "http://10.76.69.181:8080/",
     "http://localhost",
     "http://localhost:8080",
