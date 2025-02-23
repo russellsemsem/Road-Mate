@@ -5,6 +5,16 @@ import { useCallback, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { AudioWaveform } from 'lucide-react';
 
+interface ConversationMessage {
+  content: string;
+  [key: string]: unknown;
+}
+
+interface ConversationError {
+  message: string;
+  [key: string]: unknown;
+}
+
 const Background = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
@@ -89,8 +99,8 @@ export function Conversation() {
   const conversation = useConversation({
     onConnect: () => console.log('Connected'),
     onDisconnect: () => console.log('Disconnected'),
-    onMessage: (message: any) => console.log('Message:', message),
-    onError: (error: any) => console.error('Error:', error),
+    onMessage: (message: ConversationMessage) => console.log('Message:', message),
+    onError: (error: ConversationError) => console.error('Error:', error),
   });
 
   const startConversation = useCallback(async () => {
