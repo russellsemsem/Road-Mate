@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatDistanceToNow } from 'date-fns';
 
 interface AnalysisResult {
-  timestamp: string;
+  timestamp?: string;
   driver_state: string | null;
   road_conditions: string | null;
   combined_context: string;
@@ -55,7 +54,10 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
       </div>
 
       <div className="text-xs text-gray-400">
-        UTC: {new Date(analysis.timestamp).toISOString().replace('T', ' ').split('.')[0]}
+        {analysis.timestamp ? 
+          new Date(analysis.timestamp).toLocaleString() : 
+          'Timestamp not available'
+        }
       </div>
     </div>
   );
@@ -92,7 +94,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                 <div className="space-y-8">
                   {history.map((analysis, index) => (
                     <div 
-                      key={analysis.timestamp + index}
+                      key={`${analysis.timestamp}-${index}`}
                       className={index !== 0 ? "pt-4 border-t" : ""}
                     >
                       {renderAnalysis(analysis)}

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Request, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List, Dict
 from datetime import datetime
@@ -8,17 +8,25 @@ from collections import deque
 import json
 import os
 from enum import Enum
+from posthog import Posthog  # Note: lowercase posthog
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+import time
 
 # Load environment variables
 load_dotenv()
+
+
+
+posthog = Posthog(os.getenv("POSTHOG_PROJECT_API_KEY"), host='https://us.i.posthog.com')
+
 
 origins = [
     "http://10.76.69.181:8080/",
     "http://localhost",
     "http://localhost:8080",
 ]
+
 
 
 # Configuration from environment
@@ -53,12 +61,15 @@ class ContextGenerator:
         self.latest_frames = {}
         
     async def analyze_frame(self, frame_data: str, camera_type: CameraType) -> dict:
-        """Analyze a single frame using Gemini API"""
+        """Analyze a single frame using Gemini API with LLM observability"""
         prompt = (
             "In 1-2 sentences, describe the driver's alertness level, sleep levels and any concerning behaviors. Focus only on key observations."
             if camera_type == CameraType.DRIVER else
             "In 2-3 sentences, summarize the key road conditions and any immediate hazards that need attention."
         )
+        
+        start_time = time.time()
+        trace_id = f"gemini_analysis_{datetime.utcnow().timestamp()}"
         
         try:
             async with httpx.AsyncClient() as client:
@@ -94,11 +105,49 @@ class ContextGenerator:
                     raise HTTPException(status_code=500, detail=f"Gemini API error: {response.text}")
                 
                 result = response.json()
+                latency = time.time() - start_time
+                
+                # Track LLM generation
+                posthog.capture(
+                    event="$ai_generation",
+                    distinct_id=str(camera_type),
+                    properties={
+                        "$ai_trace_id": trace_id,
+                        "$ai_model": "gemini-2.0-flash",
+                        "$ai_provider": "google",
+                        "$ai_input": json.dumps([{"role": "user", "content": prompt}]),
+                        "$ai_output_choices": json.dumps([{
+                            "role": "assistant", 
+                            "content": result["candidates"][0]["content"]["parts"][0]["text"]
+                        }]),
+                        "$ai_latency": latency,
+                        "$ai_http_status": response.status_code,
+                        "$ai_base_url": "https://generativelanguage.googleapis.com/v1beta",
+                        "camera_type": str(camera_type),
+                    }
+                )
+                
                 return {
                     "analysis": result["candidates"][0]["content"]["parts"][0]["text"],
-                    "timestamp": datetime.utcnow()
+                    "timestamp": datetime.utcnow(),
+                    "trace_id": trace_id
                 }
+                
         except Exception as e:
+            # Track LLM errors
+            posthog.capture(
+                event="$ai_generation",
+                distinct_id=str(camera_type),
+                properties={
+                    "$ai_trace_id": trace_id,
+                    "$ai_model": "gemini-2.0-flash",
+                    "$ai_provider": "google",
+                    "$ai_is_error": True,
+                    "$ai_error": str(e),
+                    "$ai_latency": time.time() - start_time,
+                    "camera_type": str(camera_type),
+                }
+            )
             raise HTTPException(status_code=500, detail=f"Frame analysis failed: {str(e)}")
 
     def combine_contexts(self, driver_analysis: Optional[dict], road_analysis: Optional[dict]) -> str:
@@ -170,9 +219,90 @@ context_generator = ContextGenerator(
     context_history_size=CONTEXT_HISTORY_SIZE
 )
 
-@app.post("/frames/", response_model=Context)
+
+@app.middleware("http")
+async def track_timing(request: Request, call_next):
+    """Middleware to track request timing"""
+    start_time = time.time()
+    
+    response = await call_next(request)
+    
+    duration = round((time.time() - start_time) * 1000, 2)
+    
+    if request.url.path != "/health":  # Don't track health checks
+        posthog.capture(
+            distinct_id=str(datetime.utcnow().timestamp()),
+            event='api_request',
+            properties={
+                'path': request.url.path,
+                'method': request.method,
+                'duration_ms': duration,
+                'status_code': response.status_code
+            }
+        )
+    
+    return response
+
+
+@app.post("/frames/")
 async def process_frame(frame: Frame):
-    return await context_generator.process_frame(frame)
+    """Process incoming frame with PostHog tracking"""
+    try:
+        start_time = time.time()
+        
+        # Generate a unique ID for this analysis session
+        analysis_id = f"{frame.camera_type}_{datetime.utcnow().timestamp()}"
+        
+        # Track frame submission
+        posthog.capture(
+            distinct_id=analysis_id,
+            event='frame_submitted',
+            properties={
+                'camera_type': frame.camera_type,
+                'has_metadata': bool(frame.metadata),
+                'frame_size': len(frame.frame_data)
+            }
+        )
+        
+        # Process the frame and get analysis
+        analysis_result = await context_generator.process_frame(frame)
+        
+        # Track successful analysis
+        posthog.capture(
+            distinct_id=analysis_id,
+            event='frame_analyzed',
+            properties={
+                'camera_type': frame.camera_type,
+                'total_duration_ms': round((time.time() - start_time) * 1000, 2)
+            }
+        )
+        
+        # Return the actual analysis result
+        return {
+            "timestamp": analysis_result.timestamp.isoformat(),
+            "driver_state": analysis_result.driver_state,
+            "road_conditions": analysis_result.road_conditions,
+            "combined_context": analysis_result.combined_context,
+            "frame_ids": analysis_result.frame_ids,
+            "analysis_id": analysis_id  # Include the ID if you need it
+        }
+    
+    except Exception as e:
+        # Track errors
+        posthog.capture(
+            distinct_id=str(datetime.utcnow().timestamp()),
+            event='analysis_error',
+            properties={
+                'camera_type': frame.camera_type,
+                'error_type': type(e).__name__,
+                'error_message': str(e)
+            }
+        )
+        raise HTTPException(status_code=500, detail=str(e))
+    
+# @app.post("/frames/", response_model=Context)
+# async def process_frame(frame: Frame):
+#     return await context_generator.process_frame(frame)
 
 @app.get("/context/latest", response_model=Optional[Context])
 async def get_latest_context():
