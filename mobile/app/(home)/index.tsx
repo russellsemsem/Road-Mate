@@ -8,8 +8,11 @@ export default function Page() {
   return (
     <View>
       <SignedIn>
-        <Text>Hello {user?.emailAddresses[0].emailAddress}</Text>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text>Roadmate Screen</Text>
+        </View>
       </SignedIn>
+      
       <SignedOut>
         <Link href="/(auth)/sign-in">
           <Text>Sign in</Text>
