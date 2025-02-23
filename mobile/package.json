@@ -16,14 +16,15 @@
   "dependencies": {
     "@clerk/clerk-expo": "^2.7.8",
     "@clerk/types": "^4.46.1",
-    "dotenv": "^16.4.7",
     "expo": "~52.0.37",
     "expo-constants": "~17.0.7",
+    "expo-dotenv": "^0.1.0",
     "expo-linking": "~7.0.5",
     "expo-router": "~4.0.17",
     "expo-secure-store": "^14.0.1",
     "expo-status-bar": "~2.0.1",
     "expo-web-browser": "~14.0.2",
+    "jest-expo": "~52.0.5",
     "lucide-react": "^0.475.0",
     "lucide-react-native": "^0.475.0",
     "react": "18.3.1",
@@ -32,7 +33,8 @@
     "react-native-gesture-handler": "~2.20.2",
     "react-native-safe-area-context": "4.12.0",
     "react-native-screens": "~4.4.0",
-    "react-native-web": "~0.19.13"
+    "react-native-web": "~0.19.13",
+    "expo-av": "~15.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -41,6 +43,7 @@
     "@types/react-test-renderer": "^18.3.0",
     "jest": "^29.2.1",
     "jest-expo": "~52.0.4",
+    "react-native-dotenv": "^3.4.11",
     "react-test-renderer": "18.3.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
