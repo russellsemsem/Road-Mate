@@ -97,6 +97,8 @@ OPENAI_API_KEY=your_key_here
 Mobile (.env):
 ```env
 EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=your_key_here
+EXPO_ELEVENLABS_API_KEY=your_key_here
+EXPO_ELEVENLABS_AGENT_ID=your_agent_id_here
 ```
 
 ## Development
