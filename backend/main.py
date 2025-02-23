@@ -315,3 +315,23 @@ async def get_context_history():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+@app.delete("/context/clear")
+async def clear_context():
+    """Clear all stored contexts and frame analysis"""
+    try:
+        context_generator.contexts.clear()
+        context_generator.latest_frames.clear()
+        
+        # Track context clearing in PostHog
+        posthog.capture(
+            distinct_id=str(datetime.utcnow().timestamp()),
+            event='context_cleared',
+            properties={
+                'timestamp': datetime.utcnow().isoformat()
+            }
+        )
+        
+        return {"status": "success", "message": "Context history cleared"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to clear context: {str(e)}")
