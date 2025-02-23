@@ -1,18 +1,40 @@
-// src/app/page.tsx
 'use client';
 
 import { useAuth } from '@clerk/nextjs';
 import { useEffect } from 'react';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { uploadKnowledgeBase, updateAgent } from '@/services/elevenlabs';
 
 export default function Home() {
   const { isSignedIn, isLoaded } = useAuth();
+  const router = useRouter();
   
   useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      redirect('/dashboard');
-    }
-  }, [isSignedIn, isLoaded]);
+    const handleSignIn = async () => {
+      if (isLoaded && isSignedIn) {
+        try {
+          const apiKey = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY || '';
+          const result = await uploadKnowledgeBase(apiKey);
+          
+          if (result.success && result.id) {
+            localStorage.setItem('knowledgeBaseId', result.id);
+            try {
+              await updateAgent(apiKey);
+            } catch (updateError) {
+              console.error('Failed to update agent:', updateError);
+            }
+          }
+          
+          router.push('/dashboard');
+        } catch (error) {
+          console.error('Failed to upload knowledge base:', error);
+          router.push('/dashboard');
+        }
+      }
+    };
+
+    handleSignIn();
+  }, [isSignedIn, isLoaded, router]);
 
   if (!isLoaded) {
     return <div>Loading...</div>;

@@ -1,9 +1,10 @@
 'use client';
 
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useConversation } from '@11labs/react';
-import { useCallback, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { AudioWaveform } from 'lucide-react';
+import { fetchKnowledgeBase } from '@/services/elevenlabs';
 
 const Background = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -86,6 +87,8 @@ const Background = () => {
 };
 
 export function Conversation() {
+  const [knowledgeBase, setKnowledgeBase] = useState<any>(null);
+  
   const conversation = useConversation({
     onConnect: () => console.log('Connected'),
     onDisconnect: () => console.log('Disconnected'),
@@ -93,11 +96,34 @@ export function Conversation() {
     onError: (error: any) => console.error('Error:', error),
   });
 
+  // Silently fetch knowledge base when component mounts
+  useEffect(() => {
+    const fetchKnowledgeBaseData = async () => {
+      try {
+        const knowledgeBaseId = localStorage.getItem('knowledgeBaseId');
+        const apiKey = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY;
+
+        if (!knowledgeBaseId || !apiKey) return;
+
+        const data = await fetchKnowledgeBase(apiKey, knowledgeBaseId);
+        setKnowledgeBase(data);
+      } catch (err) {
+        console.error('Error fetching knowledge base:', err);
+      }
+    };
+
+    fetchKnowledgeBaseData();
+  }, []);
+
   const startConversation = useCallback(async () => {
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      const knowledgeBaseId = localStorage.getItem('knowledgeBaseId');
+      
       await conversation.startSession({
         agentId: 't8oRb5fMcATNT0Zv6i0Z',
+        ...(knowledgeBaseId && { knowledgeBaseId }),
       });
     } catch (error) {
       console.error('Failed to start conversation:', error);
@@ -116,7 +142,6 @@ export function Conversation() {
       <div className="min-h-screen w-full flex flex-col items-center justify-start pt-16">
         <div className="flex flex-col items-center gap-8 w-full max-w-md mx-auto p-4">
           <div className="relative w-full h-20 rounded-2xl overflow-hidden">
-            {/* Button overlay */}
             <div className="absolute inset-0 flex justify-center items-center gap-2">
               <button
                 onClick={isConnected ? stopConversation : startConversation}
