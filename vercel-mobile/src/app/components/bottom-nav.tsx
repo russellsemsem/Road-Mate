@@ -4,7 +4,34 @@
 import { UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Book, Circle } from 'lucide-react';
+import { Book } from 'lucide-react';
+
+// Custom Circle SVG Component
+const GradientCircle = () => (
+  <svg
+    viewBox="0 0 100 100"
+    className="w-7 h-7"
+  >
+    <defs>
+      <radialGradient
+        id="circleGradient"
+        cx="50%"
+        cy="50%"
+        r="50%"
+      >
+        <stop offset="0%" stopColor="#1E40AF" /> {/* Darker blue */}
+        <stop offset="70%" stopColor="#2563EB" /> {/* Medium blue */}
+        <stop offset="100%" stopColor="#3B82F6" /> {/* Lighter blue */}
+      </radialGradient>
+    </defs>
+    <circle
+      cx="50"
+      cy="50"
+      r="45"
+      fill="url(#circleGradient)"
+    />
+  </svg>
+);
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -26,7 +53,7 @@ export function BottomNav() {
           href="/dashboard" 
           className="flex items-center justify-center p-3 bg-blue-500 rounded-full -mt-6 shadow-lg hover:bg-blue-600 transition-colors"
         >
-          <Circle size={28} className="text-white" />
+          <GradientCircle />
         </Link>
 
         {/* Profile Button */}
