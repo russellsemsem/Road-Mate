@@ -76,17 +76,12 @@ const Background = () => {
   }, []);
 
   return (
-    <div className="relative w-full h-full fade-in-animation">
-      <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', pointerEvents: 'auto' }}>
-        <div style={{ width: '100%', height: '100%' }}>
-          <canvas
-            ref={canvasRef}
-            style={{ display: 'block', width: '100%', height: '100%' }}
-            data-engine="three.js r160"
-          />
-        </div>
-      </div>
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 w-screen h-screen"
+      style={{ zIndex: -1 }}
+      data-engine="three.js r160"
+    />
   );
 };
 
@@ -116,40 +111,42 @@ export function Conversation() {
   const isConnected = conversation.status === 'connected';
 
   return (
-    <div className="flex flex-col items-center gap-8 w-full max-w-md mx-auto p-4">
-      <div className="relative w-full h-48 rounded-2xl overflow-hidden">
-        {/* Background animation */}
-        <Background />
+    <>
+      <Background />
+      <div className="min-h-screen w-full flex flex-col items-center justify-start pt-16">
+        <div className="flex flex-col items-center gap-8 w-full max-w-md mx-auto p-4">
+          <div className="relative w-full h-20 rounded-2xl overflow-hidden">
+            {/* Button overlay */}
+            <div className="absolute inset-0 flex justify-center items-center gap-2">
+              <button
+                onClick={isConnected ? stopConversation : startConversation}
+                disabled={conversation.status === 'connecting'}
+                className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors focus-ring disabled:pointer-events-auto border border-subtle text-foreground w-36 z-[1] group backdrop-blur-md bg-background/80 p-1.5 h-auto border-none shadow-lg rounded-full hover:bg-background/70 active:bg-background/70 disabled:opacity-100 disabled:text-primary disabled:bg-background/80 transition-color duration-300"
+              >
+                <span className={`
+                  me-1.5 w-8 h-8 rounded-full flex items-center justify-center
+                  transition-colors duration-300
+                  ${isConnected ? 'bg-red-500' : 'bg-foreground'} 
+                  text-background group-disabled:bg-gray-400
+                  ${conversation.isSpeaking ? 'animate-pulse' : ''}
+                `}>
+                  <AudioWaveform className="w-4 h-4" />
+                </span>
+                <span className="pe-2.5 mx-auto">
+                  {isConnected ? 'Stop' : 'Call RoadMate'}
+                </span>
+              </button>
+            </div>
+          </div>
 
-        {/* Button overlay */}
-        <div className="absolute inset-0 flex justify-center items-center gap-2">
-          <button
-            onClick={isConnected ? stopConversation : startConversation}
-            disabled={conversation.status === 'connecting'}
-            className="relative inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors focus-ring disabled:pointer-events-auto border border-subtle text-foreground w-36 z-[1] group backdrop-blur-md bg-background/80 p-1.5 h-auto border-none shadow-lg rounded-full hover:bg-background/70 active:bg-background/70 disabled:opacity-100 disabled:text-primary disabled:bg-background/80 transition-color duration-300"
-          >
-            <span className={`
-              me-1.5 w-8 h-8 rounded-full flex items-center justify-center
-              transition-colors duration-300
-              ${isConnected ? 'bg-red-500' : 'bg-foreground'} 
-              text-background group-disabled:bg-gray-400
-              ${conversation.isSpeaking ? 'animate-pulse' : ''}
-            `}>
-              <AudioWaveform className="w-4 h-4" />
-            </span>
-            <span className="pe-2.5 mx-auto">
-              {isConnected ? 'Stop' : 'Call AI agent'}
-            </span>
-          </button>
+          <div className="text-center">
+            <p className="text-sm text-gray-500">
+              Status: <span className="capitalize">{conversation.status}</span>
+              {conversation.isSpeaking && ' (Speaking)'}
+            </p>
+          </div>
         </div>
       </div>
-
-      <div className="text-center">
-        <p className="text-sm text-gray-500">
-          Status: <span className="capitalize">{conversation.status}</span>
-          {conversation.isSpeaking && ' (Speaking)'}
-        </p>
-      </div>
-    </div>
+    </>
   );
 }
