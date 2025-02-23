@@ -1,15 +1,28 @@
 // src/services/elevenlabs.ts
 import { data } from './data';
 
+
+// Define interfaces for the data structure
+interface Contact {
+  name: string;
+  relationship: string;
+  "phone-number": string;
+}
+
+interface DataStructure {
+  topics: string[];
+  contacts: Contact[];
+}
+
 // Function to convert JSON to plain text format
-function jsonToPlainText(jsonData: any): string {
+function jsonToPlainText(jsonData: DataStructure | string): string {
   const obj = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
   
   let text = 'Topics:\n';
   text += obj.topics.map((topic: string) => `- ${topic}`).join('\n');
   
   text += '\n\nContacts:\n';
-  text += obj.contacts.map((contact: any) => 
+  text += obj.contacts.map((contact: Contact) => 
     `- Name: ${contact.name}\n  Relationship: ${contact.relationship}\n  Phone: ${contact["phone-number"]}`
   ).join('\n\n');
   
@@ -51,8 +64,17 @@ export async function updateAgent(apiKey: string): Promise<boolean> {
   }
 }
 
+
+interface UploadResponse {
+  success: boolean;
+  id?: string;
+  error?: string;
+  status?: number;
+}
+
+
 // Function to fetch knowledge base
-export async function fetchKnowledgeBase(apiKey: string, knowledgeBaseId: string): Promise<any> {
+export async function fetchKnowledgeBase(apiKey: string, knowledgeBaseId: string): Promise<UploadResponse> {
   try {
     const response = await fetch(
       `https://api.elevenlabs.io/v1/convai/knowledge-base/${knowledgeBaseId}`,
@@ -119,10 +141,10 @@ export async function uploadKnowledgeBase(apiKey: string): Promise<{ success: bo
     let result;
     try {
       result = JSON.parse(responseText);
-    } catch (e) {
+    } catch {
       return {
         success: false,
-        error: 'Failed to parse response as JSON',
+        error: 'Failed to parse response as JSON  BAKA',
         status: response.status
       };
     }

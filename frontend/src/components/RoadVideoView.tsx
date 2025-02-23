@@ -125,11 +125,7 @@ export const RoadVideoView: React.FC<RoadVideoViewProps> = ({ onFrame }) => {
   return (
     <div className="relative w-full max-w-2xl mx-auto">
       <div className="relative rounded-lg overflow-hidden bg-black/5 aspect-video">
-        {error ? (
-          <div className="absolute inset-0 flex items-center justify-center text-destructive">
-            <p>{error}</p>
-          </div>
-        ) : null}
+        {error ?  null : null}
         <video
           ref={videoRef}
           playsInline

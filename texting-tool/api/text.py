@@ -3,11 +3,13 @@ from http.server import BaseHTTPRequestHandler
 import json
 import os
 from twilio.rest import Client
+from urllib.parse import parse_qs, urlparse
 
-def send_text(to_number, message_body):
+def send_text(message_body):
     account_sid = os.environ.get('TWILIO_ACCOUNT_SID')
     auth_token = os.environ.get('TWILIO_AUTH_TOKEN')
     from_number = os.environ.get('TWILIO_PHONE_NUMBER')
+    to_number = "16692120331"  # Hardcoded number for testing
     
     if not all([account_sid, auth_token, from_number]):
         return {"status": "error", "message": "Missing environment variables"}
@@ -26,25 +28,37 @@ def send_text(to_number, message_body):
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == '/api/health':
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
+        if self.path.startswith('/api/send'):
+            # Parse query parameters
+            query_components = parse_qs(urlparse(self.path).query)
+            message = query_components.get('message', [''])[0]
             
-            health_status = {
+            if not message:
+                self._send_json_response(400, {
+                    "error": "Missing message parameter"
+                })
+                return
+                
+            result = send_text(message)
+            
+            if result["status"] == "success":
+                self._send_json_response(200, result)
+            else:
+                self._send_json_response(500, result)
+            return
+
+        elif self.path == '/api/health':
+            self._send_json_response(200, {
                 "status": "healthy",
                 "twilio_configured": all([
                     os.environ.get('TWILIO_ACCOUNT_SID'),
                     os.environ.get('TWILIO_AUTH_TOKEN'),
                     os.environ.get('TWILIO_PHONE_NUMBER')
                 ])
-            }
-            
-            self.wfile.write(json.dumps(health_status).encode())
+            })
             return
 
-        self.send_response(404)
-        self.end_headers()
+        self._send_json_response(404, {"error": "Not found"})
         return
 
     def do_POST(self):
@@ -54,23 +68,26 @@ class handler(BaseHTTPRequestHandler):
             
             try:
                 data = json.loads(body)
-                result = send_text(data.get('to'), data.get('message'))
+                result = send_text(data.get('message'))
                 
-                self.send_response(200 if result['status'] == 'success' else 500)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps(result).encode())
+                if result["status"] == "success":
+                    self._send_json_response(200, result)
+                else:
+                    self._send_json_response(500, result)
                 return
                 
             except json.JSONDecodeError:
-                self.send_response(400)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({
+                self._send_json_response(400, {
                     "error": "Invalid JSON"
-                }).encode())
+                })
                 return
 
-        self.send_response(404)
-        self.end_headers()
+        self._send_json_response(404, {"error": "Not found"})
         return
+        
+    def _send_json_response(self, status_code, data):
+        self.send_response(status_code)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        self.wfile.write(json.dumps(data).encode())

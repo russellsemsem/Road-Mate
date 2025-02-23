@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useConversation } from '@11labs/react';
 import * as THREE from 'three';
 import { AudioWaveform } from 'lucide-react';
@@ -8,6 +8,8 @@ import { fetchKnowledgeBase } from '@/services/elevenlabs';
 
 const Background = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  
   
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -86,14 +88,23 @@ const Background = () => {
   );
 };
 
-export function Conversation() {
-  const [knowledgeBase, setKnowledgeBase] = useState<any>(null);
+export function Conversation() {  
+
+  interface Message {
+    content: string;
+    // Add other message properties based on what you receive
+  }
+  
+  interface ConversationError {
+    message: string;
+    // Add other error properties based on your error structure
+  }
   
   const conversation = useConversation({
     onConnect: () => console.log('Connected'),
     onDisconnect: () => console.log('Disconnected'),
-    onMessage: (message: any) => console.log('Message:', message),
-    onError: (error: any) => console.error('Error:', error),
+    onMessage: (message: Message) => console.log('Message:', message),
+    onError: (error: ConversationError) => console.error('Error:', error),
   });
 
   // Silently fetch knowledge base when component mounts
@@ -105,8 +116,7 @@ export function Conversation() {
 
         if (!knowledgeBaseId || !apiKey) return;
 
-        const data = await fetchKnowledgeBase(apiKey, knowledgeBaseId);
-        setKnowledgeBase(data);
+        await fetchKnowledgeBase(apiKey, knowledgeBaseId);
       } catch (err) {
         console.error('Error fetching knowledge base:', err);
       }

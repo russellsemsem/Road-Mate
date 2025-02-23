@@ -6,7 +6,6 @@ import {
   SignUpButton,
   SignedIn,
   SignedOut,
-  UserButton,
 } from '@clerk/nextjs'
 import "./globals.css";
 
@@ -53,7 +52,7 @@ export default function RootLayout({
               </SignInButton>
               
               <div className="text-center">
-                <span className="text-gray-400">Don't have an account? </span>
+                <span className="text-gray-400">Dont have an account? </span>
                 <SignUpButton mode="modal">
                   <button className="text-white hover:text-gray-200 hover:underline font-medium">
                     Sign up
