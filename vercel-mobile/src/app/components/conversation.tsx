@@ -89,8 +89,8 @@ export function Conversation() {
   const conversation = useConversation({
     onConnect: () => console.log('Connected'),
     onDisconnect: () => console.log('Disconnected'),
-    onMessage: (message) => console.log('Message:', message),
-    onError: (error) => console.error('Error:', error),
+    onMessage: (message: any) => console.log('Message:', message),
+    onError: (error: any) => console.error('Error:', error),
   });
 
   const startConversation = useCallback(async () => {

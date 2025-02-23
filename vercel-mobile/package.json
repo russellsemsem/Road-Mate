@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@11labs/react": "^0.0.7",
+    "@clerk/nextjs": "^6.12.0",
     "@types/three": "^0.173.0",
+    "elevenlabs": "^1.51.0",
     "lucide-react": "^0.475.0",
     "next": "15.1.7",
     "react": "^19.0.0",
