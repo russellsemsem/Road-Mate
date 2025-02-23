@@ -50,7 +50,7 @@ export default function Knowledge() {
           {data.topics.map((topic, index) => (
             <div 
               key={index} 
-              className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+              className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-lg"
             >
               {topic}
               <button className="hover:bg-blue-200 rounded-full p-1">

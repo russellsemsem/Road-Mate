@@ -54,8 +54,12 @@ public/
 src/
   app/
     components/
+      bottom-nav.tsx
       conversation.tsx
     dashboard/
+      knowledge/
+        knowledge.json
+        page.tsx
       layout.tsx
       page.tsx
     globals.css
@@ -99,6 +103,82 @@ File: public/vercel.svg
 File: public/window.svg
 ================
 <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 2.5h13v10a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1zM0 1h16v11.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 0 12.5zm3.75 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5M7 4.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5" fill="#666"/></svg>
+
+================
+File: src/app/components/bottom-nav.tsx
+================
+// src/app/components/bottom-nav.tsx
+'use client';
+
+import { UserButton } from '@clerk/nextjs';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Book } from 'lucide-react';
+
+// Custom Circle SVG Component
+const GradientCircle = () => (
+  <svg
+    viewBox="0 0 100 100"
+    className="w-7 h-7"
+  >
+    <defs>
+      <radialGradient
+        id="circleGradient"
+        cx="50%"
+        cy="50%"
+        r="50%"
+      >
+        <stop offset="0%" stopColor="#1E40AF" /> {/* Darker blue */}
+        <stop offset="70%" stopColor="#2563EB" /> {/* Medium blue */}
+        <stop offset="100%" stopColor="#3B82F6" /> {/* Lighter blue */}
+      </radialGradient>
+    </defs>
+    <circle
+      cx="50"
+      cy="50"
+      r="45"
+      fill="url(#circleGradient)"
+    />
+  </svg>
+);
+
+export function BottomNav() {
+  const pathname = usePathname();
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-gray-200 dark:border-gray-800">
+      <div className="flex justify-between items-center h-16 px-8">
+        {/* Book Icon */}
+        <Link 
+          href="/dashboard/knowledge" 
+          className={`flex flex-col items-center justify-center p-2
+            ${pathname === '/dashboard' ? 'text-blue-500' : 'text-gray-500'}`}
+        >
+          <Book size={24} />
+        </Link>
+        
+        {/* Circle Button (Middle) */}
+        <Link 
+          href="/dashboard" 
+          className="flex items-center justify-center p-3 bg-blue-500 rounded-full -mt-6 shadow-lg hover:bg-blue-600 transition-colors"
+        >
+          <GradientCircle />
+        </Link>
+
+        {/* Profile Button */}
+        <div className="p-2">
+          <UserButton 
+            appearance={{
+              elements: {
+                avatarBox: "w-8 h-8"
+              }
+            }}
+          />
+        </div>
+      </div>
+    </nav>
+  );
+}
 
 ================
 File: src/app/components/conversation.tsx
@@ -199,8 +279,8 @@ export function Conversation() {
   const conversation = useConversation({
     onConnect: () => console.log('Connected'),
     onDisconnect: () => console.log('Disconnected'),
-    onMessage: (message) => console.log('Message:', message),
-    onError: (error) => console.error('Error:', error),
+    onMessage: (message: any) => console.log('Message:', message),
+    onError: (error: any) => console.error('Error:', error),
   });
 
   const startConversation = useCallback(async () => {
@@ -260,9 +340,151 @@ export function Conversation() {
 }
 
 ================
+File: src/app/dashboard/knowledge/knowledge.json
+================
+{
+    "topics": ["Basketball", "History", "Music", "Technology", "Literature"],
+    "contacts": [
+      {
+        "name": "Kayla Smith",
+        "relationship": "Mother",
+        "phone-number": "555-123-4567"
+      },
+      {
+        "name": "Maria Garcia",
+        "relationship": "Sister",
+        "phone-number": "555-234-5678"
+      },
+      {
+        "name": "David Lee",
+        "relationship": "Brother",
+        "phone-number": "555-345-6789"
+      },
+      {
+        "name": "Sarah Wilson",
+        "relationship": "Friend",
+        "phone-number": "555-456-7890"
+      },
+      {
+        "name": "Tom Anderson",
+        "relationship": "Friend",
+        "phone-number": "555-567-8901"
+      }
+    ]
+}
+
+================
+File: src/app/dashboard/knowledge/page.tsx
+================
+'use client';
+
+import React from 'react';
+import { PlusCircle, Edit, Trash, X } from 'lucide-react';
+
+export default function Knowledge() {
+  const data = {
+    "topics": ["Basketball", "History", "Music", "Technology", "Literature"],
+    "contacts": [
+      {
+        "name": "Kayla Smith",
+        "relationship": "Mother",
+        "phone-number": "555-123-4567"
+      },
+      {
+        "name": "Maria Garcia",
+        "relationship": "Sister",
+        "phone-number": "555-234-5678"
+      },
+      {
+        "name": "David Lee",
+        "relationship": "Brother",
+        "phone-number": "555-345-6789"
+      },
+      {
+        "name": "Sarah Wilson",
+        "relationship": "Friend",
+        "phone-number": "555-456-7890"
+      },
+      {
+        "name": "Tom Anderson",
+        "relationship": "Friend",
+        "phone-number": "555-567-8901"
+      }
+    ]
+  };
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto space-y-6 pb-20">
+      
+      <div className="rounded-lg shadow p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Topics</h2>
+          <button className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm flex items-center hover:bg-blue-600">
+            <PlusCircle className="w-4 h-4 mr-2" />
+            Add Topic
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {data.topics.map((topic, index) => (
+            <div 
+              key={index} 
+              className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-lg"
+            >
+              {topic}
+              <button className="hover:bg-blue-200 rounded-full p-1">
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className=" rounded-lg shadow p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Contacts</h2>
+          <button className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm flex items-center hover:bg-blue-600">
+            <PlusCircle className="w-4 h-4 mr-2" />
+            Add Contact
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {data.contacts.map((contact, index) => (
+            <div 
+              key={index} 
+              className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+            >
+              <div className="space-y-1">
+                <h3 className="font-medium text-blue-800">{contact.name}</h3>
+                <div className="flex gap-2">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {contact.relationship}
+                  </span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    {contact["phone-number"]}
+                  </span>
+                </div>
+              </div>
+              <div className="flex gap-1">
+                <button className="p-2 text-gray-600 hover:bg-gray-100 rounded">
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button className="p-2 text-red-500 hover:bg-red-50 rounded">
+                  <Trash className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+================
 File: src/app/dashboard/layout.tsx
 ================
 // src/app/dashboard/layout.tsx
+import { BottomNav } from "../components/bottom-nav";
 export default function DashboardLayout({
     children,
   }: {
@@ -271,6 +493,8 @@ export default function DashboardLayout({
     return (
       <div>
         {children}
+        {/* Bottom Navigation */}
+        <BottomNav /> 
       </div>
     );
   }
@@ -279,9 +503,11 @@ export default function DashboardLayout({
 File: src/app/dashboard/page.tsx
 ================
 // src/app/dashboard/page.tsx
+import { Conversation } from '../components/conversation';
 export default function DashboardPage() {
     return (
-      <div> hello
+      <div> 
+        <Conversation />
       </div>
     );
   }
@@ -352,7 +578,7 @@ export default function RootLayout({
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
           <header className="flex justify-end items-center p-4">
             <SignedIn>
-              <UserButton />
+              {/* <UserButton /> */}
             </SignedIn>
           </header>
           
@@ -388,17 +614,32 @@ export default function RootLayout({
 ================
 File: src/app/page.tsx
 ================
-import { Conversation } from './components/conversation';
+// src/app/page.tsx
+'use client';
+
+import { useAuth } from '@clerk/nextjs';
+import { useEffect } from 'react';
+import { redirect } from 'next/navigation';
 
 export default function Home() {
+  const { isSignedIn, isLoaded } = useAuth();
+  
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      redirect('/dashboard');
+    }
+  }, [isSignedIn, isLoaded]);
+
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <main className="min-h-80 flex flex-col items-center justify-center p-4 sm:p-8">
+    <main className="min-h-60 flex flex-col items-center justify-center p-4 sm:p-8">
       <div className="w-full max-w-2xl">
         <h1 className="text-3xl sm:text-4xl font-bold mb-12 text-center">
-          {/* Road Mate */}
+          Road Mate
         </h1>
-        {/* <Conversation /> */}
       </div>
     </main>
   );

@@ -19,7 +19,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-80 flex flex-col items-center justify-center p-4 sm:p-8">
+    <main className="min-h-60 flex flex-col items-center justify-center p-4 sm:p-8">
       <div className="w-full max-w-2xl">
         <h1 className="text-3xl sm:text-4xl font-bold mb-12 text-center">
           Road Mate
