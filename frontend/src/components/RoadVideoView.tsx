@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Pause, Play, StopCircle, Upload } from "lucide-react";
+import { API_ENDPOINTS } from '@/config/config';  // Add this at the top with other imports
 
 interface RoadVideoViewProps {
   onFrame?: (analysis: AnalysisResult) => void;
@@ -48,7 +49,7 @@ export const RoadVideoView: React.FC<RoadVideoViewProps> = ({ onFrame }) => {
           ctx.drawImage(videoRef.current, 0, 0);
           const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
           
-          const response = await fetch('http://localhost:8000/frames/', {
+          const response = await fetch(API_ENDPOINTS.frames, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

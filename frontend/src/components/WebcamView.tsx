@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Camera, Pause, Play, StopCircle } from "lucide-react";
+import { API_ENDPOINTS } from '@/config/config';
 
 
 // Add this interface above the component
@@ -42,7 +43,7 @@ export const WebcamView: React.FC<WebcamViewProps> = ({
           ctx.drawImage(videoRef.current, 0, 0);
           const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
           
-          const response = await fetch('http://localhost:8000/frames/', {
+          const response = await fetch(API_ENDPOINTS.frames, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
