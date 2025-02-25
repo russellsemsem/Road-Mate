@@ -1,50 +1,50 @@
-# Welcome to your Expo app 👋
+# Road-Mate Mobile App (Expo)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+The native mobile application for Road-Mate built with React Native and Expo, providing a seamless driver monitoring experience on mobile devices.
 
-## Get started
+## Core Features
 
-1. Install dependencies
+- **Mobile Video Analysis**:
+  - Real-time camera feed processing
+  - Mobile-optimized drowsiness detection
+  - Background processing support
 
-   ```bash
-   npm install
-   ```
+- **Voice Assistant**:
+  - ElevenLabs powered voice synthesis
+  - Natural conversation interface
+  - Audio alerts and reminders
 
-2. Start the app
+- **Secure Authentication**:
+  - Clerk-based user management
+  - Secure session handling
+  - Profile management
 
-   ```bash
-    npx expo start
-   ```
+## Technical Stack
 
-In the output, you'll find options to open the app in a
+- **Framework**: 
+  - React Native
+  - Expo SDK
+  - TypeScript
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- **Authentication**: 
+  - Clerk for secure user management
+  - expo-secure-store for token storage
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Navigation**:
+  - expo-router for file-based routing
+  - Deep linking support
+  - Screen transitions
 
-## Get a fresh project
+## Key Components
 
-When you're ready, run:
+- Native camera integration
+- Audio processing system
+- Real-time alertness monitoring
+- Push notification system
 
-```bash
-npm run reset-project
-```
+## Development Features
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Hot reload support
+- iOS and Android compatibility
+- Expo development tools
+- Native device API access

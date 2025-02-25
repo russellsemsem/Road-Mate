@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Road-Mate Progressive Web App
 
-## Getting Started
+A Progressive Web App (PWA) version of Road-Mate built with Next.js and hosted on Vercel, providing a mobile-friendly web interface with native-like features.
 
-First, run the development server:
+## Core Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Progressive Web App**:
+  - Offline capability
+  - Installable on mobile devices
+  - Native app-like experience
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Real-time Monitoring**:
+  - Web-based camera access
+  - Drowsiness detection
+  - Alert system integration
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Cloud Integration**:
+  - Seamless Vercel deployment
+  - Edge function support
+  - Real-time data synchronization
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Technical Stack
 
-## Learn More
+- **Framework**:
+  - Next.js
+  - TypeScript
+  - React
 
-To learn more about Next.js, take a look at the following resources:
+- **Styling**:
+  - Tailwind CSS
+  - Responsive design
+  - Mobile-first approach
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Authentication**:
+  - Clerk authentication
+  - Protected routes
+  - User session management
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Key Components
 
-## Deploy on Vercel
+- PWA manifest and service workers
+- Camera integration module
+- Real-time analysis dashboard
+- Mobile-optimized UI/UX
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Development
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Next.js development server
+- TypeScript type checking
+- ESLint configuration
+- Automatic deployment via Vercel

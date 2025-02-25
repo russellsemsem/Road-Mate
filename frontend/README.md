@@ -1,69 +1,45 @@
-# Welcome to your Lovable project
+# Road-Mate Web Interface
 
-## Project info
+The frontend web application provides a user-friendly interface for driver monitoring and real-time drowsiness detection.
 
-**URL**: https://lovable.dev/projects/0b12f8c7-2ca0-42b4-871d-930c19184a11
+## Core Features
 
-## How can I edit this code?
+- **Real-time Video Feed**:
+  - WebRTC-powered camera integration
+  - Live video processing visualization
+  - Drowsiness detection indicators
 
-There are several ways of editing your application.
+- **Interactive Dashboard**:
+  - Real-time alertness metrics
+  - Driver status visualization
+  - Alert history and patterns
 
-**Use Lovable**
+- **Voice Interaction**:
+  - Two-way audio communication
+  - Voice-based alertness checks
+  - Engaging conversation interface
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0b12f8c7-2ca0-42b4-871d-930c19184a11) and start prompting.
+## Technical Stack
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Framework**: Next.js and React
+- **Styling**: 
+  - Tailwind CSS for responsive design
+  - shadcn/ui components for consistent UI
+- **Real-time Features**:
+  - WebRTC for video streaming
+  - WebSocket for live updates
+  - Browser APIs for audio handling
 
-**Use your preferred IDE**
+## Key Components
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Video capture and processing interface
+- Real-time analytics dashboard
+- Alert notification system
+- Voice interaction module
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Development
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/0b12f8c7-2ca0-42b4-871d-930c19184a11) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+- Uses Vite for fast development experience
+- TypeScript for type safety
+- ESLint and Prettier for code quality
+- Responsive design for various screen sizes
